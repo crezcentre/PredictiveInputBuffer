@@ -21,6 +21,18 @@
         "arrows": true,
         "slider": true
       }
+    },
+    "orb-buffer": {
+      "type": "bool",
+      "name": "Orb pre-click",
+      "description": "If you click shortly before touching an orb, the click is applied when you touch it. Uses the same window as the stage.",
+      "default": true
+    },
+    "debug": {
+      "type": "bool",
+      "name": "Show debug popups",
+      "description": "Shows a popup each time a jump release is held back, so you can tell the buffer is working.",
+      "default": true
     }
   }
 }
