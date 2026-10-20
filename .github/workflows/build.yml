@@ -1,23 +1,48 @@
-
-name: Build Geode Mod
+name: Build Binaries
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - "**"
 
 jobs:
   build:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - name: Windows
+            os: windows-latest
+          - name: Android64
+            os: ubuntu-latest
+            target: Android64
 
-      - name: Build mod
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
         with:
-          sdk: given
-          target: Win64
-          use-lto: false
-          use-cpm-cache: false
+          bindings: geode-sdk/bindings
+          bindings-ref: main
+          combine: true
+          target: ${{ matrix.config.target }}
+
+  package:
+    name: Package builds
+    runs-on: ubuntu-latest
+    needs: ["build"]
+
+    steps:
+      - uses: geode-sdk/build-geode-mod/combine@main
+        id: build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Build Output
+          path: ${{ steps.build.outputs.build-output }}
+          
