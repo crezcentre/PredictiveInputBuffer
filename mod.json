@@ -1,12 +1,26 @@
-
 {
   "geode": "5.11.2",
   "gd": {
-    "win": "2.2081"
+    "win": "2.2081",
+    "android": "2.2081"
   },
   "id": "cesar.input-buffer",
   "name": "Predictive Input Buffer",
   "version": "v0.1.0",
   "developer": "CesarGD96",
-  "description": "F6 cycles through five input buffer stages."
+  "description": "Five input buffer stages. F6 cycles on desktop; use the Buffer stage setting on Android.",
+  "settings": {
+    "stage": {
+      "type": "int",
+      "name": "Buffer stage",
+      "description": "1 = 2/2 ticks, 2 = 4/4, 3 = 8/8, 4 = 16/8, 5 = OFF (raw input)",
+      "default": 1,
+      "min": 1,
+      "max": 5,
+      "control": {
+        "arrows": true,
+        "slider": true
+      }
+    }
+  }
 }
