@@ -108,13 +108,11 @@ namespace {
     int pressTick[2] = {0, 0};
     bool armed[2] = {false, false};
     bool physDown[2] = {false, false};   // what your finger is really doing
-    void const* prevRing[2] = {nullptr, nullptr};
 
     void clearPending() {
         pending[0] = PendingRelease{};
         pending[1] = PendingRelease{};
         armed[0] = armed[1] = false;
-        prevRing[0] = prevRing[1] = nullptr;
     }
 
     int releaseDelay(PlayLayer* pl, bool isPlayer1) {
@@ -126,17 +124,15 @@ namespace {
         return inWave ? stage.waveTicks : stage.allTicks;
     }
 
-    // Runs after each player update. Detects the first tick an orb is touched
-    // and, if you clicked shortly before, re-sends the click so it fires.
+    // Runs before and after each player update. m_touchedRing is a flag that
+    // is true while the player overlaps an orb. The first time we see it
+    // after an armed click (within the window), re-send the click so it fires.
     void orbBuffer(PlayLayer* pl, PlayerObject* player, int k) {
-        void const* ring = static_cast<void const*>(player->m_touchedRing);
-        bool newTouch = ring && ring != prevRing[k];
-        prevRing[k] = ring;
-        if (!newTouch) return;
+        if (!armed[k] || !player->m_touchedRing) return;
 
         auto const& stage = stages[currentStage()];
         if (!stage.enabled || !orbBufferEnabled()) return;
-        if (!armed[k] || tickCount - pressTick[k] > stage.allTicks) return;
+        if (tickCount - pressTick[k] > stage.allTicks) return;
 
         armed[k] = false;
 
@@ -239,6 +235,9 @@ class $modify(BufPlayerObject, PlayerObject) {
                 flushing = false;
             }
         }
+
+        // Check before (flag left over from last tick's collisions) and after.
+        if (k >= 0) orbBuffer(pl, this, k);
 
         PlayerObject::update(dt);
 
